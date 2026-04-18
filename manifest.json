@@ -1,0 +1,21 @@
+{
+  "name": "卒業試験・国家試験勉強サイト",
+  "short_name": "国試対策",
+  "description": "帝京生限定の視能訓練士 国試・卒試対策サイト",
+  "start_url": "/co-study/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#3B82F6",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
