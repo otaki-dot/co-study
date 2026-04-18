@@ -181,9 +181,7 @@
       overflow: hidden;
     }
     .home-hero::after {
-      content: '👁';
-      position: absolute; right: 32px; bottom: 16px;
-      font-size: 5rem; opacity: .15;
+      content: '';
     }
     .home-hero h2 {
       font-size: 1.65rem;
@@ -1068,7 +1066,7 @@
       <div id="quiz-section">
         <div class="section-header">
           <h2>🧠 国試対策クイズ</h2>
-          <p>視能学第3版から出題👀科目を選んで5択クイズに挑戦しよう。⭐ 要チェックで間違えた問題を管理できます。<br>AIで作成したため、変な問題があっても許してね🙆‍♀️</p>
+          <p>視能学第3版から出題👀科目を選んで5択クイズに挑戦しよう。⭐ 要チェックで間違えた問題を管理できます。<br>AIで作成したため、変な問題があっても許してね🙆‍♀️<br>⚠️ 解答数・チェック済みの進捗は同じブラウザで使い続ける限り保存されます。ブラウザのキャッシュ削除や別の端末ではリセットされます。</p>
         </div>
 
         <div id="quiz-load-error" style="display:none" class="quiz-error-box">
@@ -1319,7 +1317,7 @@
         <p>資料の間違いや追加してほしい内容があればお気軽にどうぞ。</p>
       </div>
 
-      <p class="sns-heading">📬 直接連絡する</p>
+      <p class="sns-heading">📬 お問い合わせ</p>
       <div class="sns-grid">
 
         <!-- LINE -->
@@ -1366,28 +1364,6 @@
 
       </div>
 
-      <div class="contact-card">
-        <h3>💬 お問い合わせ</h3>
-        <p>このサイトへのご意見・ご要望・資料の誤りのご指摘など、<br>
-           何でもお気軽にメッセージください。</p>
-        <br>
-        <div class="form-group">
-          <label>お名前</label>
-          <input type="text" placeholder="例：田中 太郎">
-        </div>
-        <div class="form-group">
-          <label>内容</label>
-          <textarea placeholder="例：〇〇の資料にミスがありました…"></textarea>
-        </div>
-        <button class="submit-btn" onclick="handleContact()">送信する</button>
-      </div>
-
-      <div class="contact-card">
-        <h3>ℹ️ サイトについて</h3>
-        <p>このサイトは視能訓練士を目指す学生の勉強をサポートするために作成されました。<br>
-           掲載情報は学習目的のものであり、臨床判断の根拠としないでください。<br><br>
-           PDFリンクは順次 Dropbox リンクに差し替えていきます。</p>
-      </div>
     </div>
   </div><!-- /contact -->
 
