@@ -1,0 +1,1932 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>卒業試験・国家試験勉強サイト | 視能訓練士 国試・卒試対策</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary:       #2563EB;
+      --primary-light: #EFF6FF;
+      --primary-dark:  #1D4ED8;
+      --bg:            #F8FAFC;
+      --card-bg:       #FFFFFF;
+      --text:          #1E293B;
+      --text-muted:    #64748B;
+      --border:        #E2E8F0;
+      --success:       #059669;
+      --success-light: #ECFDF5;
+      --shadow-sm:     0 1px 3px rgba(0,0,0,.08);
+      --shadow:        0 4px 12px rgba(0,0,0,.08);
+      --radius:        12px;
+      --radius-sm:     8px;
+      --nav-h:         60px;
+    }
+
+    /* ── Global ── */
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Sans',
+                   'Noto Sans JP', 'Yu Gothic', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      min-height: 100vh;
+    }
+
+    a { color: var(--primary); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    html { scroll-behavior: smooth; }
+
+    /* ─────────────────────────────────────────
+       PASSWORD OVERLAY
+    ───────────────────────────────────────── */
+    #pw-overlay {
+      position: fixed; inset: 0;
+      background-image: url('背景.png');
+      background-repeat: repeat;
+      background-size: 720px auto;
+      display: flex; align-items: center; justify-content: center;
+      z-index: 9999;
+    }
+    #pw-box {
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(4px);
+      border-radius: 20px;
+      padding: 40px 36px;
+      width: min(380px, 90vw);
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0,0,0,.25);
+    }
+    #pw-box .eye-icon {
+      font-size: 52px;
+      display: block;
+      margin-bottom: 12px;
+    }
+    #pw-box h1 {
+      font-size: clamp(1.05rem, 4.5vw, 1.35rem);
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    #pw-box p {
+      font-size: .85rem;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+    }
+    #pw-input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 1.1rem;
+      letter-spacing: 4px;
+      text-align: center;
+      outline: none;
+      transition: border-color .2s;
+    }
+    #pw-input:focus { border-color: var(--primary); }
+    #pw-input.shake {
+      animation: shake .35s;
+      border-color: #EF4444;
+    }
+    #pw-btn {
+      margin-top: 14px;
+      width: 100%;
+      padding: 12px;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .2s;
+    }
+    #pw-btn:hover { background: var(--primary-dark); }
+    #pw-error {
+      margin-top: 10px;
+      font-size: .82rem;
+      color: #EF4444;
+      min-height: 18px;
+    }
+    @keyframes shake {
+      0%,100%{transform:translateX(0)}
+      20%    {transform:translateX(-8px)}
+      40%    {transform:translateX(8px)}
+      60%    {transform:translateX(-5px)}
+      80%    {transform:translateX(5px)}
+    }
+
+    /* ─────────────────────────────────────────
+       NAVIGATION
+    ───────────────────────────────────────── */
+    #nav {
+      position: sticky; top: 0; z-index: 100;
+      height: var(--nav-h);
+      background: #fff;
+      border-bottom: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+      display: flex; align-items: center;
+      padding: 0 24px;
+      gap: 0;
+    }
+    .nav-brand {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--primary);
+      display: flex; align-items: center; gap: 8px;
+      margin-right: auto;
+      cursor: pointer;
+    }
+    .nav-brand img { display: inline-block; }
+    .nav-links {
+      display: flex; gap: 4px;
+    }
+    .nav-link {
+      padding: 8px 16px;
+      border-radius: var(--radius-sm);
+      font-size: .9rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: background .15s, color .15s;
+      border: none; background: transparent;
+    }
+    .nav-link:hover   { background: var(--primary-light); color: var(--primary); }
+    .nav-link.active  { background: var(--primary-light); color: var(--primary); font-weight: 600; }
+
+    /* ─────────────────────────────────────────
+       PAGE SWITCHING
+    ───────────────────────────────────────── */
+    .page { display: none; }
+    .page.active { display: block; }
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 32px 20px 60px;
+    }
+
+    /* ─────────────────────────────────────────
+       HOME PAGE
+    ───────────────────────────────────────── */
+    .home-hero {
+      background: linear-gradient(135deg, #1E3A8A 0%, #2563EB 60%, #38BDF8 100%);
+      border-radius: 20px;
+      padding: 48px 40px;
+      color: #fff;
+      margin-bottom: 32px;
+      position: relative;
+      overflow: hidden;
+    }
+    .home-hero::after {
+      content: '👁';
+      position: absolute; right: 32px; bottom: 16px;
+      font-size: 5rem; opacity: .15;
+    }
+    .home-hero h2 {
+      font-size: 1.65rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .home-hero p {
+      font-size: 1rem;
+      opacity: .9;
+      max-width: 520px;
+    }
+    .home-hero .hero-btns {
+      margin-top: 24px;
+      display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;
+    }
+    .btn-primary {
+      padding: 10px 24px;
+      background: #fff;
+      color: var(--primary);
+      border-radius: var(--radius-sm);
+      font-weight: 700;
+      font-size: .95rem;
+      cursor: pointer;
+      border: none;
+      transition: opacity .15s;
+    }
+    .btn-primary:hover { opacity: .88; }
+    .btn-outline {
+      padding: 10px 24px;
+      background: transparent;
+      color: #fff;
+      border: 2px solid rgba(255,255,255,.7);
+      border-radius: var(--radius-sm);
+      font-weight: 600;
+      font-size: .95rem;
+      cursor: pointer;
+      transition: background .15s;
+    }
+    .btn-outline:hover { background: rgba(255,255,255,.12); }
+
+    .home-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    .info-card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 24px;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+    }
+    .info-card .ic-icon { font-size: 1.8rem; margin-bottom: 10px; display: block; }
+    .info-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 6px; }
+    .info-card p  { font-size: .85rem; color: var(--text-muted); }
+
+    /* ─────────────────────────────────────────
+       SECTION HEADER
+    ───────────────────────────────────────── */
+    .section-header {
+      margin-bottom: 20px;
+    }
+    .section-header h2 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .section-header p {
+      font-size: .85rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* ─────────────────────────────────────────
+       NEWS / ANNOUNCEMENTS
+    ───────────────────────────────────────── */
+    .news-box {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--primary);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      margin-bottom: 28px;
+      box-shadow: var(--shadow-sm);
+    }
+    .news-box h3 {
+      font-size: .95rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 12px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .news-item {
+      display: flex;
+      gap: 12px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: .85rem;
+    }
+    .news-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .news-date {
+      color: var(--text-muted);
+      white-space: nowrap;
+      flex-shrink: 0;
+      min-width: 80px;
+    }
+    .news-badge {
+      background: var(--primary);
+      color: #fff;
+      font-size: .72rem;
+      font-weight: 700;
+      padding: 1px 7px;
+      border-radius: 999px;
+      align-self: flex-start;
+      margin-top: 2px;
+      flex-shrink: 0;
+    }
+    .news-badge.update { background: #8B5CF6; }
+    .news-badge.info   { background: #0EA5E9; }
+
+    /* ─────────────────────────────────────────
+       PROGRESS BAR
+    ───────────────────────────────────────── */
+    .progress-section {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      margin-bottom: 28px;
+      box-shadow: var(--shadow-sm);
+    }
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 10px;
+    }
+    .progress-header h3 {
+      font-size: .95rem;
+      font-weight: 700;
+      display: flex; align-items: center; gap: 6px;
+    }
+    #progress-text {
+      font-size: .85rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+    .progress-track {
+      background: var(--border);
+      border-radius: 999px;
+      height: 10px;
+      overflow: hidden;
+    }
+    #progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), #38BDF8);
+      border-radius: 999px;
+      transition: width .5s cubic-bezier(.4,0,.2,1);
+      width: 0%;
+    }
+    .progress-complete {
+      margin-top: 8px;
+      font-size: .82rem;
+      color: var(--success);
+      font-weight: 600;
+      display: none;
+    }
+
+    /* ─────────────────────────────────────────
+       FILTER BUTTONS
+    ───────────────────────────────────────── */
+    .filter-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+    .filter-btn {
+      padding: 7px 18px;
+      border-radius: 999px;
+      border: 2px solid var(--border);
+      background: var(--card-bg);
+      color: var(--text-muted);
+      font-size: .85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .15s;
+    }
+    .filter-btn:hover { border-color: var(--primary); color: var(--primary); }
+    .filter-btn.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+    }
+
+    /* ─────────────────────────────────────────
+       NOTEBOOKLM BOT BUTTON
+    ───────────────────────────────────────── */
+    .bot-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(90deg, #1D4ED8, #2563EB 60%, #0EA5E9);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 1.05rem;
+      font-weight: 700;
+      text-align: center;
+      text-decoration: none;
+      margin-bottom: 28px;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(37,99,235,.35);
+      transition: opacity .15s, transform .15s;
+    }
+    .bot-btn:hover { opacity: .88; transform: translateY(-1px); text-decoration: none; }
+
+    /* ─────────────────────────────────────────
+       MATERIAL CARDS
+    ───────────────────────────────────────── */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 40px;
+    }
+
+    .mat-card {
+      background: var(--card-bg);
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 18px 16px;
+      display: flex; flex-direction: column;
+      box-shadow: var(--shadow-sm);
+      transition: box-shadow .2s, border-color .2s, transform .15s;
+      position: relative;
+    }
+    .mat-card:hover {
+      box-shadow: var(--shadow);
+      transform: translateY(-2px);
+    }
+    .mat-card.studied {
+      border-color: var(--success);
+      background: var(--success-light);
+    }
+    .mat-card.studied .mat-icon { filter: none; }
+
+    .mat-card-top {
+      display: flex; align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .mat-icon {
+      font-size: 1.8rem;
+      line-height: 1;
+    }
+    .cat-badge {
+      font-size: .7rem;
+      font-weight: 700;
+      padding: 2px 9px;
+      border-radius: 999px;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .cat-解剖生理 { background: #3B82F6; }
+    .cat-視機能   { background: #8B5CF6; }
+    .cat-検査     { background: #10B981; }
+    .cat-その他   { background: #F59E0B; }
+    .cat-練習問題 { background: #EA580C; }
+    .cat-講義     { background: #0284C7; }
+
+    .answer-btn {
+      flex: 1;
+      padding: 7px 10px;
+      background: #DCFCE7;
+      color: #16A34A;
+      border: 1px solid #BBF7D0;
+      border-radius: var(--radius-sm);
+      font-size: .8rem;
+      font-weight: 600;
+      text-align: center;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background .15s;
+    }
+    .answer-btn:hover { background: #BBF7D0; text-decoration: none; }
+
+    .slide-btn {
+      flex: 1;
+      padding: 7px 10px;
+      background: #DCFCE7;
+      color: #16A34A;
+      border: 1px solid #BBF7D0;
+      border-radius: var(--radius-sm);
+      font-size: .8rem;
+      font-weight: 600;
+      text-align: center;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background .15s;
+    }
+    .slide-btn:hover { background: #BBF7D0; text-decoration: none; }
+
+    .video-btn {
+      flex: 1;
+      padding: 7px 10px;
+      background: var(--primary);
+      color: #fff;
+      border: 1px solid var(--primary);
+      border-radius: var(--radius-sm);
+      font-size: .8rem;
+      font-weight: 600;
+      text-align: center;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background .15s;
+    }
+    .video-btn:hover { background: var(--primary-dark); text-decoration: none; }
+
+    .video-btn-disabled {
+      flex: 1;
+      padding: 7px 10px;
+      background: #F1F5F9;
+      color: #94A3B8;
+      border: 1px solid #E2E8F0;
+      border-radius: var(--radius-sm);
+      font-size: .8rem;
+      font-weight: 600;
+      text-align: center;
+      cursor: not-allowed;
+      text-decoration: none;
+      pointer-events: none;
+    }
+    .video-no-note {
+      font-size: .72rem;
+      color: #94A3B8;
+      margin-top: 4px;
+      display: block;
+    }
+
+    .mat-num {
+      font-size: .72rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+    .mat-title {
+      font-size: .95rem;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.4;
+      flex: 1;
+    }
+    .mat-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 14px;
+    }
+    .pdf-btn {
+      flex: 1;
+      padding: 7px 10px;
+      background: var(--primary-light);
+      color: var(--primary);
+      border: 1px solid #BFDBFE;
+      border-radius: var(--radius-sm);
+      font-size: .8rem;
+      font-weight: 600;
+      text-align: center;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background .15s;
+    }
+    .pdf-btn:hover { background: #DBEAFE; text-decoration: none; }
+
+    .check-btn {
+      padding: 7px 10px;
+      border-radius: var(--radius-sm);
+      font-size: .8rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: 2px solid var(--border);
+      background: #fff;
+      color: var(--text-muted);
+      white-space: nowrap;
+      transition: all .15s;
+      flex-shrink: 0;
+    }
+    .check-btn:hover {
+      border-color: var(--success);
+      color: var(--success);
+    }
+    .mat-card.studied .check-btn {
+      background: var(--success);
+      border-color: var(--success);
+      color: #fff;
+    }
+
+    /* ─────────────────────────────────────────
+       REFERENCE LINKS
+    ───────────────────────────────────────── */
+    .ref-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 16px;
+      margin-bottom: 40px;
+    }
+    .ref-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      box-shadow: var(--shadow-sm);
+      display: flex; flex-direction: column; gap: 6px;
+      transition: box-shadow .2s, transform .15s;
+      text-decoration: none; color: inherit;
+    }
+    .ref-card:hover {
+      box-shadow: var(--shadow);
+      transform: translateY(-2px);
+      text-decoration: none;
+    }
+    .ref-card-top {
+      display: flex; align-items: center; gap: 10px;
+    }
+    .ref-icon { font-size: 1.5rem; }
+    .ref-name {
+      font-size: .92rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+    .ref-desc {
+      font-size: .8rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+    .ref-ext {
+      font-size: .75rem;
+      color: var(--text-muted);
+      display: flex; align-items: center; gap: 4px;
+      margin-top: 2px;
+    }
+
+    /* ─────────────────────────────────────────
+       CONTACT PAGE
+    ───────────────────────────────────────── */
+    .contact-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px;
+      max-width: 560px;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 24px;
+    }
+    .contact-card h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .contact-card p {
+      font-size: .9rem;
+      color: var(--text-muted);
+      line-height: 1.7;
+    }
+    .form-group { margin-bottom: 16px; }
+    .form-group label {
+      display: block;
+      font-size: .85rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 10px 14px;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: .9rem;
+      font-family: inherit;
+      outline: none;
+      transition: border-color .2s;
+      background: #fff;
+    }
+    .form-group input:focus,
+    .form-group textarea:focus { border-color: var(--primary); }
+    .form-group textarea { resize: vertical; min-height: 100px; }
+    .submit-btn {
+      padding: 11px 28px;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: .95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .15s;
+    }
+    .submit-btn:hover { background: var(--primary-dark); }
+
+    /* ─────────────────────────────────────────
+       SNS CONTACT CARDS
+    ───────────────────────────────────────── */
+    .sns-heading {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 14px;
+    }
+    .sns-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    .sns-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px 20px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      position: relative;
+      overflow: hidden;
+      text-decoration: none;
+      color: inherit;
+      transition: box-shadow .2s, transform .15s;
+    }
+    .sns-card:hover { box-shadow: var(--shadow); transform: translateY(-2px); text-decoration: none; }
+    .sns-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 4px; height: 100%;
+      border-radius: 4px 0 0 4px;
+    }
+    .sns-card-line::before        { background: #06C755; }
+    .sns-card-instagram::before   { background: #E1306C; }
+    .sns-card-top {
+      display: flex; align-items: center; gap: 12px;
+    }
+    .sns-card-icon { width: 44px; height: 44px; flex-shrink: 0; }
+    .sns-card-title { font-size: 1.05rem; font-weight: 700; }
+    .sns-card-id {
+      font-size: .9rem;
+      font-weight: 600;
+      color: var(--text);
+      background: var(--bg);
+      padding: 6px 14px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      display: inline-block;
+      letter-spacing: .03em;
+    }
+    .sns-card-desc {
+      font-size: .83rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    /* ─────────────────────────────────────────
+       FOOTER
+    ───────────────────────────────────────── */
+    footer {
+      border-top: 1px solid var(--border);
+      text-align: center;
+      padding: 20px;
+      font-size: .8rem;
+      color: var(--text-muted);
+    }
+
+    /* ─────────────────────────────────────────
+       QUIZ APP
+    ───────────────────────────────────────── */
+    #quiz-section { margin-bottom: 40px; }
+    .quiz-panel { background:var(--card-bg); border:1px solid var(--border); border-radius:var(--radius); padding:28px 24px; box-shadow:var(--shadow-sm); }
+    .quiz-error-box { background:#FEF2F2; border:1px solid #FECACA; border-radius:var(--radius-sm); padding:16px; color:#DC2626; font-size:.9rem; margin-bottom:16px; }
+    .quiz-form-row { margin-bottom:20px; }
+    .quiz-form-label { display:block; font-size:.88rem; font-weight:700; margin-bottom:8px; }
+    .quiz-select { width:100%; padding:10px 14px; border:2px solid var(--border); border-radius:var(--radius-sm); font-size:.9rem; font-family:inherit; background:#fff; outline:none; color:var(--text); transition:border-color .2s; }
+    .quiz-select:focus { border-color:var(--primary); }
+    .quiz-radio-group { display:flex; flex-wrap:wrap; gap:8px; }
+    .quiz-radio-label { display:flex; align-items:center; gap:6px; padding:8px 16px; border:2px solid var(--border); border-radius:999px; font-size:.85rem; font-weight:600; cursor:pointer; color:var(--text-muted); transition:all .15s; user-select:none; }
+    .quiz-radio-label:has(input:checked) { border-color:var(--primary); background:var(--primary-light); color:var(--primary); }
+    .quiz-radio-label input { display:none; }
+    .quiz-radio-label.disabled-label { opacity:.4; cursor:not-allowed; }
+    .quiz-checked-info { font-size:.82rem; color:var(--text-muted); margin-top:10px; padding:10px 14px; background:var(--bg); border-radius:var(--radius-sm); border:1px solid var(--border); }
+    .quiz-start-btn { display:flex; align-items:center; justify-content:center; width:100%; padding:14px; background:var(--primary); color:#fff; border:none; border-radius:var(--radius-sm); font-size:1rem; font-weight:700; cursor:pointer; margin-top:16px; transition:background .15s; }
+    .quiz-start-btn:hover { background:var(--primary-dark); }
+    .quiz-meta { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:16px; }
+    .quiz-subject-badge { font-size:.75rem; font-weight:700; padding:3px 12px; border-radius:999px; background:var(--primary); color:#fff; }
+    .quiz-meta-right { display:flex; align-items:center; gap:12px; font-size:.82rem; color:var(--text-muted); font-weight:600; }
+    .quiz-score-badge { background:var(--success-light); color:var(--success); padding:3px 12px; border-radius:999px; font-weight:700; }
+    .quiz-q-text { font-size:1rem; line-height:1.75; font-weight:600; margin-bottom:20px; padding:16px; background:var(--bg); border-radius:var(--radius-sm); border-left:4px solid var(--primary); }
+    .quiz-choices { display:flex; flex-direction:column; gap:8px; }
+    .quiz-choice-btn { width:100%; padding:12px 16px; border:2px solid var(--border); border-radius:var(--radius-sm); background:#fff; font-size:.9rem; font-family:inherit; text-align:left; cursor:pointer; transition:all .15s; line-height:1.5; }
+    .quiz-choice-btn:hover:not(:disabled) { border-color:var(--primary); background:var(--primary-light); }
+    .quiz-choice-btn.correct { background:var(--success-light)!important; border-color:var(--success)!important; color:var(--success); font-weight:700; }
+    .quiz-choice-btn.wrong { background:#FEF2F2!important; border-color:#EF4444!important; color:#DC2626; font-weight:700; }
+    .quiz-choice-btn:disabled { cursor:not-allowed; }
+    .quiz-explanation { background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-sm); padding:18px; margin-top:16px; animation:fadeIn .3s ease; }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+    .quiz-result-badge { font-size:1.15rem; font-weight:800; display:block; margin-bottom:10px; }
+    .quiz-result-badge.correct { color:var(--success); }
+    .quiz-result-badge.wrong   { color:#EF4444; }
+    .quiz-exp-text { font-size:.88rem; line-height:1.75; }
+    .quiz-source { font-size:.78rem; color:var(--text-muted); margin-top:8px; margin-bottom:10px; }
+    .quiz-check-btn { padding:7px 16px; border:2px solid #F59E0B; background:#fff; color:#92400E; border-radius:var(--radius-sm); font-size:.82rem; font-weight:700; cursor:pointer; transition:all .15s; }
+    .quiz-check-btn.checked { background:#FEF3C7; }
+    .quiz-check-btn:hover { background:#FEF3C7; }
+    .quiz-nav-row { display:flex; gap:10px; margin-top:18px; flex-wrap:wrap; }
+    .quiz-next-btn { flex:1; padding:12px; background:var(--primary); color:#fff; border:none; border-radius:var(--radius-sm); font-size:.95rem; font-weight:700; cursor:pointer; transition:background .15s; min-width:140px; }
+    .quiz-next-btn:hover { background:var(--primary-dark); }
+    .quiz-end-btn { padding:12px 20px; background:#fff; color:var(--text-muted); border:2px solid var(--border); border-radius:var(--radius-sm); font-size:.88rem; font-weight:600; cursor:pointer; transition:all .15s; }
+    .quiz-end-btn:hover { border-color:#EF4444; color:#EF4444; }
+    .quiz-result-header { text-align:center; padding:16px 0 24px; }
+    .quiz-score-num { font-size:1.8rem; font-weight:800; display:block; margin-bottom:4px; }
+    .quiz-score-pct { font-size:1rem; color:var(--text-muted); font-weight:600; }
+    .quiz-result-track { background:var(--border); border-radius:999px; height:12px; overflow:hidden; margin:16px 0 24px; }
+    .quiz-result-fill { height:100%; background:linear-gradient(90deg,var(--primary),#38BDF8); border-radius:999px; transition:width .6s cubic-bezier(.4,0,.2,1); }
+    .quiz-result-btns { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; }
+    .quiz-retry-btn { padding:12px 28px; background:var(--primary); color:#fff; border:none; border-radius:var(--radius-sm); font-size:.95rem; font-weight:700; cursor:pointer; transition:background .15s; }
+    .quiz-retry-btn:hover { background:var(--primary-dark); }
+
+    /* ─────────────────────────────────────────
+       RESPONSIVE
+    ───────────────────────────────────────── */
+    /* QUIZ SUMMARY CARDS */
+    .quiz-summary-cards { display:flex; gap:12px; margin-bottom:20px; }
+    .quiz-summary-card { flex:1; min-width:80px; background:var(--card-bg); border:1px solid var(--border); border-top-width:3px; border-radius:var(--radius-sm); padding:14px 12px; text-align:center; box-shadow:var(--shadow-sm); }
+    .quiz-summary-num { display:block; font-size:1.5rem; font-weight:800; line-height:1.2; margin-bottom:4px; }
+    .quiz-summary-label { display:block; font-size:.72rem; font-weight:600; color:var(--text-muted); }
+    .qsc-blue   { border-top-color:var(--primary); }
+    .qsc-blue   .quiz-summary-num { color:var(--primary); }
+    .qsc-green  { border-top-color:var(--success); }
+    .qsc-green  .quiz-summary-num { color:var(--success); }
+    .qsc-orange { border-top-color:#F59E0B; }
+    .qsc-orange .quiz-summary-num { color:#D97706; }
+    /* QUIZ SUBJECT PROGRESS */
+    .quiz-subject-progress { margin-top:10px; }
+    .quiz-sp-header { display:flex; justify-content:space-between; align-items:center; font-size:.8rem; font-weight:600; color:var(--text-muted); margin-bottom:6px; }
+    .quiz-sp-track { background:var(--border); border-radius:3px; height:6px; overflow:hidden; }
+    .quiz-sp-fill  { height:100%; background:var(--primary); border-radius:3px; transition:width .4s ease; }
+
+    @media (max-width: 600px) {
+      .home-hero { padding: 32px 22px; }
+      .home-hero h2 { font-size: 1.3rem; }
+      #nav { padding: 0 16px; }
+      .nav-link { padding: 7px 11px; font-size: .82rem; }
+      .nav-brand { font-size: .95rem; }
+      .container { padding: 22px 14px 48px; }
+      .cards-grid { grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); }
+      .mat-title { font-size: .88rem; }
+      .ref-grid { grid-template-columns: 1fr; }
+      .sns-grid  { grid-template-columns: 1fr; }
+      .quiz-radio-group { gap:6px; }
+      .quiz-nav-row { flex-direction:column; }
+      .quiz-next-btn { min-width:unset; }
+      .quiz-summary-card { padding:10px 8px; }
+      .quiz-summary-num  { font-size:1.2rem; }
+    }
+
+    /* ─── ACCORDION (スマホのみ) ─── */
+    @media (max-width: 768px) {
+      .accordion-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        cursor: pointer;
+        user-select: none;
+      }
+      .accordion-icon {
+        font-size: 14px;
+        color: #888;
+        flex-shrink: 0;
+        padding-top: 6px;
+      }
+      .accordion-body {
+        display: none;
+        overflow: hidden;
+      }
+      .accordion-body.open {
+        display: block;
+      }
+      /* ─── BOTTOM NAV ─── */
+      #bottom-nav {
+        position: fixed;
+        bottom: 0; left: 0; right: 0;
+        background: #fff;
+        border-top: 1px solid #e0e0e0;
+        display: flex;
+        justify-content: space-around;
+        padding: 6px 0 10px;
+        z-index: 1000;
+        box-shadow: 0 -2px 8px rgba(0,0,0,.08);
+      }
+      .bottom-nav-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+        font-size: 10px;
+        color: #555;
+        text-decoration: none;
+      }
+      .bottom-nav-item span:first-child { font-size: 20px; }
+      body { padding-bottom: 70px; }
+
+      /* ─── カードグリッドを2列固定 ─── */
+      .cards-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+        overflow: hidden;
+      }
+      /* ─── グリッドアイテムのはみ出し防止（グリッドオーバーフローの根本対策） ─── */
+      .mat-card {
+        min-width: 0;
+        overflow: hidden;
+        padding: 12px 10px 10px;
+      }
+      .mat-icon {
+        font-size: 1.3rem;
+      }
+      .mat-title {
+        font-size: .8rem;
+      }
+      .mat-num {
+        font-size: .68rem;
+      }
+      /* ─── ボタンエリア ─── */
+      .mat-actions {
+        gap: 4px;
+        margin-top: 8px;
+        flex-wrap: wrap;
+      }
+      /* ─── 全ボタンの折り返し防止・サイズ縮小 ─── */
+      .pdf-btn, .answer-btn, .slide-btn, .video-btn, .video-btn-disabled {
+        white-space: nowrap;
+        font-size: .7rem;
+        padding: 5px 4px;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        flex: 1 1 auto;
+      }
+      .check-btn {
+        white-space: nowrap;
+        font-size: .7rem;
+        padding: 5px 6px;
+        min-width: 0;
+      }
+    }
+
+    /* ─── PC: アコーディオン無効化 ─── */
+    @media (min-width: 769px) {
+      .accordion-body { display: block; }
+      .accordion-icon { display: none; }
+      #bottom-nav { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     PASSWORD OVERLAY
+════════════════════════════════════════════ -->
+<div id="pw-overlay">
+  <div id="pw-box">
+    <img src="うえ.png" style="height:80px; width:auto; margin-bottom:12px;">
+    <h1>卒業試験・国家試験勉強サイト</h1>
+    <p>帝京生限定の視能訓練士<br>国試・卒試対策サイトです<br>パスワードを入力してください</p>
+    <input id="pw-input" type="password" inputmode="numeric"
+           placeholder="••••" maxlength="10"
+           onkeydown="if(event.key==='Enter')checkPw()">
+    <button id="pw-btn" onclick="checkPw()">ログイン</button>
+    <div id="pw-error"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     MAIN APP
+════════════════════════════════════════════ -->
+<div id="app" style="display:none">
+
+  <!-- Navigation -->
+  <nav id="nav">
+    <div class="nav-brand" onclick="showPage('home')">
+      <img src="うえ.png" alt="ロゴ" style="height:40px;object-fit:contain;vertical-align:middle"> 卒業試験・国家試験勉強サイト
+    </div>
+    <div class="nav-links">
+      <button class="nav-link active" data-page="home"    onclick="showPage('home')">Home</button>
+      <button class="nav-link"        data-page="study"   onclick="showPage('study')">Study</button>
+      <button class="nav-link"        data-page="contact" onclick="showPage('contact')">Contact</button>
+    </div>
+  </nav>
+
+  <!-- ────────────────────── HOME PAGE ────────────────────── -->
+  <div id="page-home" class="page active">
+    <div class="container">
+
+      <div class="home-hero">
+        <h2>視能訓練士 国試・卒試対策</h2>
+        <p>授業資料のPDFや参考リンクをまとめた学習サポートサイトです。<br>
+           自分のペースでコツコツ進めていきましょう！</p>
+        <div class="hero-btns">
+          <button class="btn-primary" onclick="showPage('study')">学習を始める</button>
+        </div>
+      </div>
+
+      <div class="home-cards">
+        <div class="info-card">
+          <span class="ic-icon">📚</span>
+          <h3>豊富な勉強資料</h3>
+          <p>解剖・視機能・検査など国試頻出テーマを網羅したPDF資料を公開中。</p>
+        </div>
+        <div class="info-card">
+          <span class="ic-icon">🤖</span>
+          <h3>🤖 卒試・国試Bot</h3>
+          <p>AIが卒試・国試の質問に答えます。300冊以上の参考書・疾患ガイドライン・論文等を読み込ませており、ほとんどの分野を網羅しています。</p>
+        </div>
+        <div class="info-card">
+          <span class="ic-icon">🔗</span>
+          <h3>信頼性の高いリンク</h3>
+          <p>厳選した参考サイトへのリンクを掲載しています。</p>
+        </div>
+      </div>
+
+    </div>
+  </div><!-- /home -->
+
+  <!-- ────────────────────── STUDY PAGE ────────────────────── -->
+  <div id="page-study" class="page">
+    <div class="container">
+
+      <!-- お知らせ -->
+      <div class="section-header">
+        <h2>📢 お知らせ</h2>
+      </div>
+      <div class="news-box">
+        <h3>📌 最新情報</h3>
+        <div class="news-item">
+          <span class="news-date">2026/04/16</span>
+          <span class="news-badge">NEW</span>
+          <span>サイトを公開しました。旧サイトは閉鎖しました。</span>
+        </div>
+      </div>
+
+      <!-- 学習進捗（非表示） -->
+      <div class="section-header" style="display:none">
+        <h2>📊 学習進捗</h2>
+      </div>
+      <div class="progress-section" style="display:none">
+        <div class="progress-header">
+          <h3>📖 完了した教材</h3>
+          <span id="progress-text">0 / 14 完了 (0%)</span>
+        </div>
+        <div class="progress-track">
+          <div id="progress-fill"></div>
+        </div>
+        <p class="progress-complete" id="progress-complete">🎉 すべての教材を学習済みにしました！お疲れさまです。</p>
+      </div>
+
+      <!-- NotebookLM Bot -->
+      <a class="bot-btn"
+         href="https://notebooklm.google.com/notebook/23f60c79-f174-47f0-bd76-917843f5ae32/preview"
+         target="_blank" rel="noopener">
+        🤖 卒試・国試Bot に質問する
+      </a>
+      <p style="font-size:0.85rem;color:#64748B;margin-top:-18px;margin-bottom:28px;line-height:1.6;">
+        このBotは卒試・国試用です。300冊の参考書、ガイドライン、論文等を読み込ませています。ほとんどの分野を網羅していると思いますが、回答が100％正しいとは限りませんので、あくまで勉強の補助として使用してください。
+      </p>
+
+      <!-- 国試対策クイズ -->
+      <div id="quiz-section">
+        <div class="section-header">
+          <h2>🧠 国試対策クイズ</h2>
+          <p>視能学第3版から出題👀科目を選んで5択クイズに挑戦しよう。⭐ 要チェックで間違えた問題を管理できます。<br>AIで作成したため、変な問題があっても許してね🙆‍♀️</p>
+        </div>
+
+        <div id="quiz-load-error" style="display:none" class="quiz-error-box">
+          ⚠️ 問題データの読み込みに失敗しました。VS Code Live Server などローカルサーバー経由で開いてください（file:// では fetch が動きません）。
+        </div>
+
+        <!-- サマリーカード -->
+        <div id="quiz-summary-cards" style="display:none" class="quiz-summary-cards">
+          <div class="quiz-summary-card qsc-blue">
+            <span class="quiz-summary-num" id="qsc-answered">0</span>
+            <span class="quiz-summary-label">解答済み問題</span>
+          </div>
+          <div class="quiz-summary-card qsc-green">
+            <span class="quiz-summary-num" id="qsc-accuracy">--</span>
+            <span class="quiz-summary-label">正答率</span>
+          </div>
+          <div class="quiz-summary-card qsc-orange">
+            <span class="quiz-summary-num" id="qsc-checked">0</span>
+            <span class="quiz-summary-label">チェック済み</span>
+          </div>
+        </div>
+
+        <!-- スタート画面 -->
+        <div id="quiz-start" style="display:none" class="quiz-panel">
+          <div class="quiz-form-row">
+            <label class="quiz-form-label">📚 科目を選ぶ</label>
+            <select id="quiz-subject-select" class="quiz-select" onchange="updateSubjectProgress()"></select>
+            <div id="quiz-subject-progress" class="quiz-subject-progress">
+              <div class="quiz-sp-header">
+                <span id="quiz-sp-label">全体の解答済み</span>
+                <span id="quiz-sp-text">0 / 0問</span>
+              </div>
+              <div class="quiz-sp-track"><div class="quiz-sp-fill" id="quiz-sp-fill" style="width:0%"></div></div>
+            </div>
+          </div>
+          <div class="quiz-form-row">
+            <label class="quiz-form-label">🎯 モード</label>
+            <div class="quiz-radio-group">
+              <label class="quiz-radio-label">
+                <input type="radio" name="quiz-mode" value="normal" checked> 通常モード
+              </label>
+              <label class="quiz-radio-label" id="quiz-mode-checked-label">
+                <input type="radio" name="quiz-mode" value="checked" id="quiz-mode-checked"> ⭐ チェック済みのみ
+              </label>
+            </div>
+          </div>
+          <div class="quiz-form-row">
+            <label class="quiz-form-label">🔢 問題数</label>
+            <div class="quiz-radio-group">
+              <label class="quiz-radio-label"><input type="radio" name="quiz-count" value="10" checked> 10問</label>
+              <label class="quiz-radio-label"><input type="radio" name="quiz-count" value="20"> 20問</label>
+              <label class="quiz-radio-label"><input type="radio" name="quiz-count" value="all"> 飽きるまで（全問）</label>
+            </div>
+          </div>
+          <div class="quiz-checked-info">⭐ チェック済み：<strong id="quiz-checked-count">0</strong> 問</div>
+          <button class="quiz-start-btn" onclick="startQuiz()">▶ クイズを始める</button>
+        </div>
+
+        <!-- 問題画面 -->
+        <div id="quiz-question" style="display:none" class="quiz-panel">
+          <div class="quiz-meta">
+            <span class="quiz-subject-badge" id="quiz-q-subject"></span>
+            <div class="quiz-meta-right">
+              <span id="quiz-q-num"></span>
+              <span class="quiz-score-badge" id="quiz-q-score"></span>
+            </div>
+          </div>
+          <p class="quiz-q-text" id="quiz-q-text"></p>
+          <div class="quiz-choices" id="quiz-choices"></div>
+          <div id="quiz-explanation" style="display:none" class="quiz-explanation">
+            <span id="quiz-result-badge" class="quiz-result-badge"></span>
+            <p class="quiz-exp-text" id="quiz-exp-text"></p>
+            <p class="quiz-source" id="quiz-source"></p>
+            <button class="quiz-check-btn" id="quiz-check-btn" onclick="toggleQuizCheck()">⭐ 要チェック</button>
+          </div>
+          <div class="quiz-nav-row">
+            <button class="quiz-next-btn" id="quiz-next-btn" style="display:none" onclick="nextQuiz()">次の問題 →</button>
+            <button class="quiz-end-btn" onclick="endQuiz()">クイズを終了</button>
+          </div>
+        </div>
+
+        <!-- 結果画面 -->
+        <div id="quiz-result" style="display:none" class="quiz-panel">
+          <div class="quiz-result-header">
+            <span class="quiz-score-num" id="quiz-score-num"></span>
+            <span class="quiz-score-pct" id="quiz-score-pct"></span>
+          </div>
+          <div class="quiz-result-track">
+            <div class="quiz-result-fill" id="quiz-result-bar" style="width:0%"></div>
+          </div>
+          <div class="quiz-result-btns">
+            <button class="quiz-retry-btn" onclick="retryQuiz()">🔄 もう一度</button>
+          </div>
+        </div>
+      </div><!-- /quiz-section -->
+
+      <!-- フィルター & カード -->
+      <section id="section-materials">
+        <div class="section-header accordion-header" onclick="toggleAccordion('section-materials')">
+          <div>
+            <h2>📄 教材一覧</h2>
+            <p>瀧川が過去に作成した卒試・国試用の教材です。印刷も可能なのでご希望の方はご連絡ください。</p>
+          </div>
+          <span class="accordion-icon">▼</span>
+        </div>
+        <div class="accordion-body">
+          <div class="filter-row" id="filter-row">
+            <button class="filter-btn active" onclick="filterCards('all', this)">すべて</button>
+            <button class="filter-btn" onclick="filterCards('解剖生理', this)">解剖生理</button>
+            <button class="filter-btn" onclick="filterCards('視機能', this)">視機能</button>
+            <button class="filter-btn" onclick="filterCards('検査', this)">検査</button>
+            <button class="filter-btn" onclick="filterCards('その他', this)">その他</button>
+          </div>
+          <div class="cards-grid" id="cards-grid">
+            <!-- cards are injected by JS -->
+          </div>
+        </div>
+      </section>
+
+      <!-- オンライン講義 -->
+      <section id="section-lectures">
+        <div class="section-header accordion-header" onclick="toggleAccordion('section-lectures')">
+          <div>
+            <h2>🎬 オンライン講義</h2>
+            <p>以前4年生を対象に実施したオンライン講義の動画とスライドです。勉強のスタートにオススメ！</p>
+          </div>
+          <span class="accordion-icon">▼</span>
+        </div>
+        <div class="accordion-body">
+          <div class="cards-grid" id="lecture-grid">
+            <!-- cards are injected by JS -->
+          </div>
+        </div>
+      </section>
+
+      <!-- 練習問題 -->
+      <section id="section-practice">
+        <div class="section-header accordion-header" onclick="toggleAccordion('section-practice')">
+          <div>
+            <h2>📝 練習問題</h2>
+            <p>過去に作成した練習問題です。No.5は難しいのでやらなくていいかも。</p>
+          </div>
+          <span class="accordion-icon">▼</span>
+        </div>
+        <div class="accordion-body">
+          <div class="cards-grid" id="quiz-grid">
+            <!-- cards are injected by JS -->
+          </div>
+        </div>
+      </section>
+
+      <!-- おすすめ勉強サイト -->
+      <section id="section-sites">
+        <div class="section-header accordion-header" onclick="toggleAccordion('section-sites')">
+          <div>
+            <h2>🔗 おすすめ勉強サイト</h2>
+            <p>内容に信頼性のあるものを選んでいます。<br>電車やすき間時間などで見て活用すると良いと思います。（論文や教科書ではないため日誌の参考文献に使用するのはNG！）</p>
+          </div>
+          <span class="accordion-icon">▼</span>
+        </div>
+        <div class="accordion-body">
+      <div class="ref-grid">
+
+        <a class="ref-card" href="https://www.youtube.com/channel/UCissWrlSufxPnFqi4BOVLwg" target="_blank" rel="noopener">
+          <div class="ref-card-top">
+            <span class="ref-icon">📺</span>
+            <span class="ref-name">眼科検査スキルアップチャンネル</span>
+          </div>
+          <p class="ref-desc">動画で分かりやすく検査などを解説してくれています。実習生のときに欲しかったというサイトです。</p>
+          <span class="ref-ext">↗ youtube.com</span>
+        </a>
+
+        <a class="ref-card" href="https://guchopoi.com/" target="_blank" rel="noopener">
+          <div class="ref-card-top">
+            <span class="ref-icon">👨‍⚕️</span>
+            <span class="ref-name">眼科医ぐちょぽいのオンライン勉強会</span>
+          </div>
+          <p class="ref-desc">どの記事も読みやすく、視能訓練士向けの記事も多いです。</p>
+          <span class="ref-ext">↗ guchopoi.com</span>
+        </a>
+
+        <a class="ref-card" href="https://doctork1991.com/" target="_blank" rel="noopener">
+          <div class="ref-card-top">
+            <span class="ref-icon">🏥</span>
+            <span class="ref-name">ドクターK先生 オンライン眼科</span>
+          </div>
+          <p class="ref-desc">ぐちょぽい先生と同様に読みやすく、信頼性のある記事です。</p>
+          <span class="ref-ext">↗ doctork1991.com</span>
+        </a>
+
+        <a class="ref-card" href="https://pandamanual.iam-panda.com/" target="_blank" rel="noopener">
+          <div class="ref-card-top">
+            <span class="ref-icon">🐼</span>
+            <span class="ref-name">パンダの視能訓練士検査 フローチャートマニュアル</span>
+          </div>
+          <p class="ref-desc">視能訓練士の検査についてはこのサイトが一番です。</p>
+          <span class="ref-ext">↗ pandamanual.iam-panda.com</span>
+        </a>
+
+        <a class="ref-card" href="https://orthoptist1010.com/" target="_blank" rel="noopener">
+          <div class="ref-card-top">
+            <span class="ref-icon">📝</span>
+            <span class="ref-name">ORT1010blog</span>
+          </div>
+          <p class="ref-desc">実習で必要な知識が多い印象です。</p>
+          <span class="ref-ext">↗ orthoptist1010.com</span>
+        </a>
+
+        <a class="ref-card" href="https://medamania.com/" target="_blank" rel="noopener">
+          <div class="ref-card-top">
+            <span class="ref-icon">🦋</span>
+            <span class="ref-name">めだまにあ 眼科情報サイト</span>
+          </div>
+          <p class="ref-desc">ぐちょぽい先生、ドクターK先生同様に読みやすい記事が多いです。</p>
+          <span class="ref-ext">↗ medamania.com</span>
+        </a>
+
+        <a class="ref-card" href="https://www.nichigan.or.jp/member/journal/guideline/" target="_blank" rel="noopener">
+          <div class="ref-card-top">
+            <span class="ref-icon">📋</span>
+            <span class="ref-name">日本眼科学会ガイドライン</span>
+          </div>
+          <p class="ref-desc">疾患毎の診断・治療のガイドラインです。これは日誌の参考文献に使用してOK。</p>
+          <span class="ref-ext">↗ nichigan.or.jp</span>
+        </a>
+
+        <a class="ref-card" href="https://www.imaios.com/jp/e-anatomy/4/2" target="_blank" rel="noopener">
+          <div class="ref-card-top">
+            <span class="ref-icon">🔬</span>
+            <span class="ref-name">imaios e-Anatomy</span>
+          </div>
+          <p class="ref-desc">眼の画像が豊富にあり、解剖を覚えるのに便利です。</p>
+          <span class="ref-ext">↗ imaios.com</span>
+        </a>
+
+      </div>
+        </div><!-- /accordion-body -->
+      </section><!-- /section-sites -->
+
+    </div>
+  </div><!-- /study -->
+
+  <!-- ────────────────────── CONTACT PAGE ────────────────────── -->
+  <div id="page-contact" class="page">
+    <div class="container">
+      <div class="section-header">
+        <h2>✉️ Contact</h2>
+        <p>資料の間違いや追加してほしい内容があればお気軽にどうぞ。</p>
+      </div>
+
+      <p class="sns-heading">📬 直接連絡する</p>
+      <div class="sns-grid">
+
+        <!-- LINE -->
+        <div class="sns-card sns-card-line">
+          <div class="sns-card-top">
+            <svg class="sns-card-icon" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect width="44" height="44" rx="10" fill="#06C755"/>
+              <path d="M22 9.5C13.99 9.5 7.5 15.2 7.5 22.2c0 6.26 5.14 11.52 12.25 12.88l-1.1 4.12 5.1-3.02c.75.1 1.51.15 2.25.15 8.01 0 14.5-5.7 14.5-12.7S30.01 9.5 22 9.5z" fill="white"/>
+              <circle cx="16.5" cy="22" r="1.8" fill="#06C755"/>
+              <circle cx="22"   cy="22" r="1.8" fill="#06C755"/>
+              <circle cx="27.5" cy="22" r="1.8" fill="#06C755"/>
+            </svg>
+            <span class="sns-card-title">LINE</span>
+          </div>
+          <span class="sns-card-id">LINE ID：ajapapapa11</span>
+          <p class="sns-card-desc">チューターに関係なく、質問やご相談があればご連絡ください</p>
+        </div>
+
+        <!-- Instagram -->
+        <a class="sns-card sns-card-instagram"
+           href="https://www.instagram.com/ryusei_takigawa/?hl=ja"
+           target="_blank" rel="noopener">
+          <div class="sns-card-top">
+            <svg class="sns-card-icon" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="ig-grad" x1="0" y1="44" x2="44" y2="0" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%"   stop-color="#FFDC80"/>
+                  <stop offset="25%"  stop-color="#FCAF45"/>
+                  <stop offset="50%"  stop-color="#F77737"/>
+                  <stop offset="75%"  stop-color="#E1306C"/>
+                  <stop offset="100%" stop-color="#833AB4"/>
+                </linearGradient>
+              </defs>
+              <rect width="44" height="44" rx="10" fill="url(#ig-grad)"/>
+              <rect x="10" y="10" width="24" height="24" rx="6" stroke="white" stroke-width="2.5" fill="none"/>
+              <circle cx="22" cy="22" r="6" stroke="white" stroke-width="2.5" fill="none"/>
+              <circle cx="30.5" cy="13.5" r="1.6" fill="white"/>
+            </svg>
+            <span class="sns-card-title">Instagram</span>
+          </div>
+          <p class="sns-card-desc">インスタのDMでも連絡を受け付けています</p>
+          <p class="sns-card-desc">フォローせずにDMしてOKです（フォローしてくれたら喜びます🙆‍♀️）</p>
+        </a>
+
+      </div>
+
+      <div class="contact-card">
+        <h3>💬 お問い合わせ</h3>
+        <p>このサイトへのご意見・ご要望・資料の誤りのご指摘など、<br>
+           何でもお気軽にメッセージください。</p>
+        <br>
+        <div class="form-group">
+          <label>お名前</label>
+          <input type="text" placeholder="例：田中 太郎">
+        </div>
+        <div class="form-group">
+          <label>内容</label>
+          <textarea placeholder="例：〇〇の資料にミスがありました…"></textarea>
+        </div>
+        <button class="submit-btn" onclick="handleContact()">送信する</button>
+      </div>
+
+      <div class="contact-card">
+        <h3>ℹ️ サイトについて</h3>
+        <p>このサイトは視能訓練士を目指す学生の勉強をサポートするために作成されました。<br>
+           掲載情報は学習目的のものであり、臨床判断の根拠としないでください。<br><br>
+           PDFリンクは順次 Dropbox リンクに差し替えていきます。</p>
+      </div>
+    </div>
+  </div><!-- /contact -->
+
+  <footer>
+    &copy; 2026 卒業試験・国家試験勉強サイト &nbsp;|&nbsp; 視能訓練士 国試・卒試対策
+  </footer>
+
+  <!-- ─── BOTTOM NAV (スマホのみ表示) ─── -->
+  <nav id="bottom-nav">
+    <a href="#quiz-section" class="bottom-nav-item">
+      <span>🧠</span>
+      <span>クイズ</span>
+    </a>
+    <a href="#section-materials" class="bottom-nav-item">
+      <span>📚</span>
+      <span>教材</span>
+    </a>
+    <a href="#section-lectures" class="bottom-nav-item">
+      <span>🎬</span>
+      <span>講義</span>
+    </a>
+    <a href="#section-practice" class="bottom-nav-item">
+      <span>📝</span>
+      <span>練習</span>
+    </a>
+    <a href="#section-sites" class="bottom-nav-item">
+      <span>🔗</span>
+      <span>サイト</span>
+    </a>
+  </nav>
+
+</div><!-- /app -->
+
+<script>
+// ─────────────────────────────────────────────
+// PASSWORD
+// ─────────────────────────────────────────────
+const CORRECT_PW = '0213';
+const SESSION_KEY = 'ort-auth';
+
+function checkPw() {
+  const val = document.getElementById('pw-input').value;
+  if (val === CORRECT_PW) {
+    sessionStorage.setItem(SESSION_KEY, '1');
+    document.getElementById('pw-overlay').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    initStudy();
+  } else {
+    const inp = document.getElementById('pw-input');
+    const err = document.getElementById('pw-error');
+    inp.classList.add('shake');
+    err.textContent = 'パスワードが違います。もう一度試してください。';
+    inp.value = '';
+    setTimeout(() => inp.classList.remove('shake'), 400);
+  }
+}
+
+// Auto-unlock if already authenticated this session
+if (sessionStorage.getItem(SESSION_KEY) === '1') {
+  document.getElementById('pw-overlay').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  // initStudy called after DOM ready (below)
+}
+
+// ─────────────────────────────────────────────
+// NAVIGATION
+// ─────────────────────────────────────────────
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-link').forEach(b => {
+    b.classList.toggle('active', b.dataset.page === name);
+  });
+  document.getElementById('page-' + name).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ─────────────────────────────────────────────
+// CARD DATA
+// ─────────────────────────────────────────────
+const CARDS = [
+  { id: 'c00', num: '0',           title: '表紙',               cat: 'その他',   icon: '📋', pdf: 'https://www.dropbox.com/scl/fi/xgsozr0kqxe6wvow2fb68/00_.pdf?rlkey=998aljzb2ujg291u4w7guh6un&st=eqyum82w&dl=0' },
+  { id: 'c01', num: '1',           title: '眼の解剖と生理',     cat: '解剖生理', icon: '👁', pdf: 'https://www.dropbox.com/scl/fi/nbzpi0gwphowb25xla04o/01_.pdf?rlkey=fmpz0csflvlhxbxxkknz3zkg7&st=ss5z9rjc&dl=0' },
+  { id: 'c02', num: '2',           title: '血管系・脳・神経',   cat: '解剖生理', icon: '🧠', pdf: 'https://www.dropbox.com/scl/fi/olzgplqkiqftq3glp5rr6/02_.pdf?rlkey=ria5mmqampzvpsjuqnrsdxxsy&st=xuuqqwom&dl=0' },
+  { id: 'c03', num: '3',           title: '視覚生理・形態覚',   cat: '視機能',   icon: '🔍', pdf: 'https://www.dropbox.com/scl/fi/suxls0zntmr1ikgtciqjx/03_.pdf?rlkey=p2yo05yq8zbgcxq09wv6bz17b&st=amluvsiz&dl=0' },
+  { id: 'c04', num: '4',           title: '視野',               cat: '視機能',   icon: '🎯', pdf: 'https://www.dropbox.com/scl/fi/t0chq5dd9z88ifsss0611/04_.pdf?rlkey=bgnbnnuahj4k9mv5e0900lgtl&st=nrkihmn8&dl=0' },
+  { id: 'c05', num: '5',           title: '色覚',               cat: '視機能',   icon: '🌈', pdf: 'https://www.dropbox.com/scl/fi/yyoywwlbzci5panq5q1nn/05_.pdf?rlkey=9j7mq0mndsufeif3tppkzn6uf&st=exwpw94e&dl=0' },
+  { id: 'c06', num: '6',           title: '電気生理',           cat: '検査',     icon: '⚡', pdf: 'https://www.dropbox.com/scl/fi/g7tbr9uo7tgryrw1zquqq/06_.pdf?rlkey=f1t765vunixdyrn49b4gnjj9j&st=6st8lfm2&dl=0' },
+  { id: 'c07', num: '7',           title: '生理光学・眼鏡・CL', cat: 'その他',   icon: '👓', pdf: 'https://www.dropbox.com/scl/fi/z2mo3wbtbide4ucbmm98i/07_.pdf?rlkey=2nve5oaotqdny3wgwol8lcg8e&st=c9zld52s&dl=0' },
+  { id: 'c08', num: '8',           title: '両眼視・眼球運動',   cat: '視機能',   icon: '👀', pdf: 'https://www.dropbox.com/scl/fi/gox0w8nbtfg28nwm3d4t5/08_.pdf?rlkey=j10pvsd7l147junjbrx2cpb6f&st=r1cfe9bb&dl=0' },
+  { id: 'c09', num: '9',           title: '薬理',               cat: 'その他',   icon: '💊', pdf: 'https://www.dropbox.com/scl/fi/y6k5bhk16umxhyv4ck5er/09_.pdf?rlkey=i1g1t5mfaeenjv47covgw8znz&st=82gbncd7&dl=0' },
+  { id: 'c10', num: '10',          title: '検査学',             cat: '検査',     icon: '🏥', pdf: 'https://www.dropbox.com/scl/fi/ds57t5cbkli7y25zllfhb/10_.pdf?rlkey=63w39sg3nl1k9yssvpe1mdg6f&st=gkff3gaa&dl=0' },
+  { id: 'c11', num: '11',          title: '眼振',               cat: '検査',     icon: '🔄', pdf: 'https://www.dropbox.com/scl/fi/dl2245h4n3dqu08rs4h1s/11_.pdf?rlkey=nosj56oquc2prddg3r4m2co1y&st=ko8998w2&dl=0' },
+  { id: 'c12', num: 'アセスメント', title: '追加解説',           cat: 'その他',   icon: '📝', pdf: 'https://www.dropbox.com/scl/fi/bwgy0szk1jz39cbfxfswu/12_.pdf?rlkey=e276e5yfz2iq0fjd9gwg46cvc&st=7wjp6exd&dl=0' },
+  { id: 'c13', num: '練習問題',    title: '解説',               cat: 'その他',   icon: '✏️', pdf: 'https://www.dropbox.com/scl/fi/qkgvyie408ihw9rdy87iw/.pdf?rlkey=eb3gxzr4gh267sjyvz5q4vhvq&st=tfphgi7r&dl=0' },
+];
+const TOTAL = CARDS.length; // 14
+
+const QUIZ_CARDS = [
+  { id: 'q01', num: 'No.1', title: '練習問題 No.1', cat: '練習問題', icon: '📝',
+    problem: 'https://www.dropbox.com/scl/fi/s7lp9e98wpn0h22gy8a8w/.pdf?rlkey=cyqeb24cxinom7jysoi3mcrk5&st=rihubbfs&dl=0',
+    answer:  'https://www.dropbox.com/scl/fi/lo7i0miy9c90py0mhe946/.pdf?rlkey=hni9c5mprajo2h3wdjeoptvro&st=ed1lrh75&dl=0' },
+  { id: 'q02', num: 'No.2', title: '練習問題 No.2', cat: '練習問題', icon: '📝',
+    problem: 'https://www.dropbox.com/scl/fi/45bj11g45o4v30dpvkz07/.pdf?rlkey=yeyic7hdzyd4ppwi90ta1h1h8&st=f5zkq2ij&dl=0',
+    answer:  'https://www.dropbox.com/scl/fi/0bgiu9800rfox6bykzlou/.pdf?rlkey=mbsyh2lvidv2t64bw73dw37ub&st=czopknim&dl=0' },
+  { id: 'q03', num: 'No.3', title: '練習問題 No.3', cat: '練習問題', icon: '📝',
+    problem: 'https://www.dropbox.com/scl/fi/5cfvbwqna49vr0w31stzx/.pdf?rlkey=29ccxpw9j1p2mum0nuepf49uy&st=q2jb1rg7&dl=0',
+    answer:  'https://www.dropbox.com/scl/fi/9dmfevvmohs0iapfbi3yr/.pdf?rlkey=639sl1te6y7kmtdal0jukapmr&st=d142el6c&dl=0' },
+  { id: 'q04', num: 'No.4', title: '練習問題 No.4', cat: '練習問題', icon: '📝',
+    problem: 'https://www.dropbox.com/scl/fi/hzp3w5a1mmw0silq2jvld/.pdf?rlkey=j6ui7t8yto4hhopcshk12nee9&st=5ea15m9i&dl=0',
+    answer:  'https://www.dropbox.com/scl/fi/coxth4eyev80xd5r8i8e4/.pdf?rlkey=qb1uoxy1n0w1kvczshu2sdte8&st=vra3s36f&dl=0' },
+  { id: 'q05', num: 'No.5', title: '練習問題 No.5', cat: '練習問題', icon: '📝',
+    problem: 'https://www.dropbox.com/scl/fi/1hjcgiq49lhcwbr5iuco4/.pdf?rlkey=o78zcklg93unrefaf34tuaq6p&st=prn93blk&dl=0',
+    answer:  'https://www.dropbox.com/scl/fi/av7sfv3mnaunw19ndrodp/.pdf?rlkey=vzy4ywlgyxd2eya7vdro48tjf&st=qoj6ukmk&dl=0' },
+];
+
+const LECTURE_CARDS = [
+  { id: 'lec01', num: '第1回',  title: '基礎医学・解剖',       cat: '講義', icon: '🎬',
+    slide: 'https://www.dropbox.com/scl/fi/k561tuugrnp9sipooaqoy/1_.pdf?rlkey=jfu0x15ic0pd2jqdhd114djoa&st=fhe7iv5x&dl=0',
+    video: null },
+  { id: 'lec02', num: '第2回',  title: '両眼視と眼球運動',     cat: '講義', icon: '🎬',
+    slide: 'https://www.dropbox.com/scl/fi/p43r0fyihsp253oks71jv/2_.pdf?rlkey=4j7pe644tdqbbiob42x1j6sf3&st=o8a5gi0o&dl=0',
+    video: 'https://www.dropbox.com/scl/fi/4zcuym6ciic1zwoikfmlg/2-_.mp4?rlkey=tubooqf4wu5jrigwzb8ypr5ps&st=2pwtbwx6&dl=0' },
+  { id: 'lec03', num: '第3回',  title: '視覚生理',             cat: '講義', icon: '🎬',
+    slide: 'https://www.dropbox.com/scl/fi/dd4r9bxctvh0mmai4wsju/3_.pdf?rlkey=1f332z36ickh1jtaut7sth3ro&st=ly2h76l3&dl=0',
+    video: 'https://www.dropbox.com/scl/fi/9zm8ykuhsy8qmfiwauvhj/3-_.mp4?rlkey=f42lpp0qugf5gr6bn44ror6h8&st=j2txr0xa&dl=0' },
+  { id: 'lec04', num: '第4回',  title: '視覚生理②',           cat: '講義', icon: '🎬',
+    slide: 'https://www.dropbox.com/scl/fi/nzn7w1u4o9rgrzgu4lyya/4_.pdf?rlkey=iiu6b7u5vi5b0dx8owmzu6hkm&st=3lq3qyhj&dl=0',
+    video: 'https://www.dropbox.com/scl/fi/lxdue3ngu8ciayjjbbbu6/4.mp4?rlkey=ccp8wy9eiri8dtr72yqo5t1bh&st=wx4ye68k&dl=0' },
+  { id: 'lec05', num: '第5回',  title: '生理光学',             cat: '講義', icon: '🎬',
+    slide: 'https://www.dropbox.com/scl/fi/8gessgmgssy5oromd788r/5_.pdf?rlkey=0jvbkwnot27mdmbxhf6cth4ml&st=sfhwn6k0&dl=0',
+    video: 'https://www.dropbox.com/scl/fi/4kodrbe2wkhqm6nkvphdi/5.mp4?rlkey=3ixoaj62hjxcem5yfdessrmuq&st=a0fq2i7u&dl=0' },
+  { id: 'lec06', num: '第6回',  title: '検査学',               cat: '講義', icon: '🎬',
+    slide: 'https://www.dropbox.com/scl/fi/xupiksl6dv8aqfmiwfc1t/6_.pdf?rlkey=0o80xk509q4x3dcx5yqxountr&st=39gt2vfm&dl=0',
+    video: 'https://www.dropbox.com/scl/fi/kq916yj6vojceq98hnt5q/6.mp4?rlkey=aq3u788pd8wsagsngrs5app3g&st=hlswr6vs&dl=0' },
+  { id: 'lec07', num: '第7回',  title: '内眼部・外眼部疾患',   cat: '講義', icon: '🎬',
+    slide: 'https://www.dropbox.com/scl/fi/cehvxcmycrvrd7x0m6khc/7_.pdf?rlkey=39pv1sitk9en5c1u4seo12ure&st=gl8bn6qo&dl=0',
+    video: 'https://www.dropbox.com/scl/fi/k8fjdggrialq399jpsv48/7.mp4?rlkey=fjajsicvai2hgd9aljd4eavvj&st=minmeave&dl=0' },
+  { id: 'lec08', num: '第8回',  title: '神経眼科・その他疾患', cat: '講義', icon: '🎬',
+    slide: 'https://www.dropbox.com/scl/fi/di8daf0p1mwrjlh5fej1b/8_.pdf?rlkey=7l99307vyapvp8f81s8jvg4wg&st=wtsenlp4&dl=0',
+    video: 'https://www.dropbox.com/scl/fi/56otyamw5cm5xtk09sl8h/8.mp4?rlkey=gi027e791be28nb8i4a3f1ll4&st=zvolmae4&dl=0' },
+  { id: 'lec09', num: '第9回',  title: '斜視検査',             cat: '講義', icon: '🎬',
+    slide: 'https://www.dropbox.com/scl/fi/sji87x7xvt4ppo2ed962m/9_.pdf?rlkey=8e4c3688zeabf1w0cd66ivquu&st=w8gzakdh&dl=0',
+    video: 'https://www.dropbox.com/scl/fi/sv4qaxmkbqd98ac5zw6j1/9.mp4?rlkey=zuxkdtvaze5z9a6rokoze3by7&st=g99c76he&dl=0' },
+  { id: 'lec10', num: '第10回', title: '斜視',                 cat: '講義', icon: '🎬',
+    slide: 'https://www.dropbox.com/scl/fi/hf630v8rcj7wz2rp8rig4/10_.pdf?rlkey=n6bok09o2ntintm3nxgzg6g3d&st=t893lr8p&dl=0',
+    video: 'https://www.dropbox.com/scl/fi/eglspowvye0v3fzhft5ae/10.mp4?rlkey=ua11rjs9hvzugy8he0lttsii6&st=hhkdt0un&dl=0' },
+  { id: 'lec11', num: '第11回', title: '斜視手術',             cat: '講義', icon: '🎬',
+    slide: 'https://www.dropbox.com/scl/fi/e8jxxy59mc1w1lfx321kz/11_.pdf?rlkey=p3ol7gtyedzdotfgcuu1xzrc0&st=hvsq05j9&dl=0',
+    video: 'https://www.dropbox.com/scl/fi/ybm41md6704exrdp9dfcb/11.mp4?rlkey=53rqlh8kixvuetu6f2ojcrq7q&st=5z8u6wkz&dl=0' },
+  { id: 'lec12', num: '第12回', title: '視能訓練',             cat: '講義', icon: '🎬',
+    slide: 'https://www.dropbox.com/scl/fi/r3fsdomn3ne6kwbxbx8l9/12_.pdf?rlkey=q6exc21v2f55yetjyt0npyiaw&st=00edcv6a&dl=0',
+    video: 'https://www.dropbox.com/scl/fi/cxio576hkpkr4w7fewqd2/12.mp4?rlkey=3nlwl8daxejojv4yforahi6qv&st=bqwalcrt&dl=0' },
+];
+
+// ─────────────────────────────────────────────
+// RENDER CARDS
+// ─────────────────────────────────────────────
+function renderCards() {
+  const grid = document.getElementById('cards-grid');
+  grid.innerHTML = '';
+  CARDS.forEach(c => {
+    const div = document.createElement('div');
+    div.className = 'mat-card';
+    div.dataset.id  = c.id;
+    div.dataset.cat = c.cat;
+    div.innerHTML = `
+      <div class="mat-card-top">
+        <span class="mat-icon">${c.icon}</span>
+        <span class="cat-badge cat-${c.cat}">${c.cat}</span>
+      </div>
+      <div class="mat-num">${c.num}</div>
+      <div class="mat-title">${c.title}</div>
+      <div class="mat-actions">
+        <a class="pdf-btn" href="${c.pdf}" target="_blank" rel="noopener">PDF を開く</a>
+        <button class="check-btn" onclick="toggleStudied('${c.id}')">学習済み ✅</button>
+      </div>`;
+    grid.appendChild(div);
+  });
+}
+
+function renderQuizCards() {
+  const grid = document.getElementById('quiz-grid');
+  grid.innerHTML = '';
+  QUIZ_CARDS.forEach(c => {
+    const div = document.createElement('div');
+    div.className = 'mat-card';
+    div.dataset.id  = c.id;
+    div.dataset.cat = c.cat;
+    div.innerHTML = `
+      <div class="mat-card-top">
+        <span class="mat-icon">${c.icon}</span>
+        <span class="cat-badge cat-${c.cat}">${c.cat}</span>
+      </div>
+      <div class="mat-num">${c.num}</div>
+      <div class="mat-title">${c.title}</div>
+      <div class="mat-actions">
+        <a class="pdf-btn"    href="${c.problem}" target="_blank" rel="noopener">📄 問題を開く</a>
+        <a class="answer-btn" href="${c.answer}"  target="_blank" rel="noopener">✅ 解答を開く</a>
+      </div>
+      <div class="mat-actions" style="margin-top:6px;">
+        <button class="check-btn" onclick="toggleStudied('${c.id}')">学習済み ✅</button>
+      </div>`;
+    grid.appendChild(div);
+  });
+}
+
+function renderLectureCards() {
+  const grid = document.getElementById('lecture-grid');
+  grid.innerHTML = '';
+  LECTURE_CARDS.forEach(c => {
+    const videoBtn = c.video
+      ? `<a class="video-btn" href="${c.video}" target="_blank" rel="noopener">▶️ 講義動画を見る</a>`
+      : `<span class="video-btn-disabled">⚠️ 録画なし</span>`;
+    const videoNote = c.video
+      ? ''
+      : `<span class="video-no-note">※第${c.num.replace('第','').replace('回','')}回は録画がありません</span>`;
+    const div = document.createElement('div');
+    div.className = 'mat-card';
+    div.dataset.id  = c.id;
+    div.dataset.cat = c.cat;
+    div.innerHTML = `
+      <div class="mat-card-top">
+        <span class="mat-icon">${c.icon}</span>
+        <span class="cat-badge cat-${c.cat}">${c.cat}</span>
+      </div>
+      <div class="mat-num">${c.num}</div>
+      <div class="mat-title">${c.title}</div>
+      <div class="mat-actions">
+        <a class="slide-btn" href="${c.slide}" target="_blank" rel="noopener">📄 スライドを開く</a>
+        ${videoBtn}
+      </div>
+      ${videoNote}
+      <div class="mat-actions" style="margin-top:6px;">
+        <button class="check-btn" onclick="toggleStudied('${c.id}')">学習済み ✅</button>
+      </div>`;
+    grid.appendChild(div);
+  });
+}
+
+// ─────────────────────────────────────────────
+// PROGRESS
+// ─────────────────────────────────────────────
+const LS_KEY = 'ort-study-progress';
+
+function loadProgress() {
+  const saved = JSON.parse(localStorage.getItem(LS_KEY) || '{}');
+  [...CARDS, ...QUIZ_CARDS, ...LECTURE_CARDS].forEach(c => {
+    if (saved[c.id]) {
+      const el = document.querySelector(`.mat-card[data-id="${c.id}"]`);
+      if (el) el.classList.add('studied');
+    }
+  });
+  updateProgress();
+}
+
+function toggleStudied(id) {
+  const card = document.querySelector(`.mat-card[data-id="${id}"]`);
+  card.classList.toggle('studied');
+  const saved = JSON.parse(localStorage.getItem(LS_KEY) || '{}');
+  saved[id] = card.classList.contains('studied');
+  localStorage.setItem(LS_KEY, JSON.stringify(saved));
+  updateProgress();
+}
+
+function updateProgress() {
+  const studied = document.querySelectorAll('#cards-grid .mat-card.studied').length;
+  const pct = Math.round(studied / TOTAL * 100);
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-text').textContent = `${studied} / ${TOTAL} 完了 (${pct}%)`;
+  const comp = document.getElementById('progress-complete');
+  comp.style.display = studied === TOTAL ? 'block' : 'none';
+}
+
+// ─────────────────────────────────────────────
+// FILTER
+// ─────────────────────────────────────────────
+function filterCards(cat, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  document.querySelectorAll('.mat-card').forEach(card => {
+    const show = cat === 'all' || card.dataset.cat === cat;
+    card.style.display = show ? '' : 'none';
+  });
+}
+
+// ─────────────────────────────────────────────
+// CONTACT (placeholder)
+// ─────────────────────────────────────────────
+function handleContact() {
+  alert('送信しました（※このフォームはデモ表示です）');
+}
+
+// ─────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────
+function initStudy() {
+  renderCards();
+  renderQuizCards();
+  renderLectureCards();
+  loadProgress();
+  initQuizApp();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  if (sessionStorage.getItem(SESSION_KEY) === '1') {
+    initStudy();
+  }
+});
+
+// ─────────────────────────────────────────────
+// QUIZ APP
+// ─────────────────────────────────────────────
+const QUIZ_LS_KEY = 'quiz_checked_ids';
+let quizData  = [];
+let quizState = {};
+
+function getCheckedIds() {
+  try { return JSON.parse(localStorage.getItem(QUIZ_LS_KEY) || '[]'); } catch { return []; }
+}
+function saveCheckedIds(ids) { localStorage.setItem(QUIZ_LS_KEY, JSON.stringify(ids)); }
+
+function getQuizResults() {
+  try { return JSON.parse(localStorage.getItem('quiz_results')) || {}; } catch { return {}; }
+}
+function saveQuizResult(questionId, isCorrect) {
+  const results = getQuizResults();
+  results[questionId] = isCorrect;
+  localStorage.setItem('quiz_results', JSON.stringify(results));
+}
+
+function updateSummaryCards() {
+  const results  = getQuizResults();
+  const ids      = getCheckedIds();
+  const answered = Object.keys(results).length;
+  const correct  = Object.values(results).filter(v => v).length;
+  const pct      = answered > 0 ? Math.round(correct / answered * 100) + '%' : '--';
+  const ansEl  = document.getElementById('qsc-answered');
+  const accEl  = document.getElementById('qsc-accuracy');
+  const chkEl  = document.getElementById('qsc-checked');
+  const cardsEl = document.getElementById('quiz-summary-cards');
+  if (ansEl)  ansEl.textContent  = answered;
+  if (accEl)  accEl.textContent  = pct;
+  if (chkEl)  chkEl.textContent  = ids.length;
+  if (cardsEl) cardsEl.style.display = 'flex';
+}
+
+function updateSubjectProgress() {
+  if (!quizData.length) return;
+  const subject = document.getElementById('quiz-subject-select')?.value || 'all';
+  const pool    = subject === 'all' ? quizData : quizData.filter(q => q.subject === subject);
+  const results = getQuizResults();
+  const done    = pool.filter(q => q.id in results).length;
+  const total   = pool.length;
+  const pct     = total > 0 ? Math.round(done / total * 100) : 0;
+  const label   = document.getElementById('quiz-sp-label');
+  const text    = document.getElementById('quiz-sp-text');
+  const fill    = document.getElementById('quiz-sp-fill');
+  if (label) label.textContent = subject === 'all' ? '全体の解答済み' : `${subject}の解答済み`;
+  if (text)  text.textContent  = `${done} / ${total}問`;
+  if (fill)  fill.style.width  = pct + '%';
+}
+
+async function initQuizApp() {
+  try {
+    const res = await fetch('./questions.json');
+    if (!res.ok) throw new Error();
+    quizData = await res.json();
+  } catch {
+    if (typeof QUIZ_DATA !== 'undefined' && QUIZ_DATA.length > 0) {
+      quizData = QUIZ_DATA;
+    } else {
+      document.getElementById('quiz-load-error').style.display = 'block';
+      return;
+    }
+  }
+  buildSubjectSelect();
+  updateCheckedCount();
+  updateSummaryCards();
+  updateSubjectProgress();
+  document.getElementById('quiz-start').style.display = 'block';
+}
+
+function buildSubjectSelect() {
+  const subjects = [...new Set(quizData.map(q => q.subject))];
+  const sel = document.getElementById('quiz-subject-select');
+  sel.innerHTML = `<option value="all">すべて（${quizData.length}問）</option>` +
+    subjects.map(s => `<option value="${s}">${s}（${quizData.filter(q => q.subject === s).length}問）</option>`).join('');
+}
+
+function updateCheckedCount() {
+  const ids  = getCheckedIds();
+  const el   = document.getElementById('quiz-checked-count');
+  const radio = document.getElementById('quiz-mode-checked');
+  const lbl   = document.getElementById('quiz-mode-checked-label');
+  if (el)    el.textContent = ids.length;
+  if (radio) radio.disabled = ids.length === 0;
+  if (lbl)   lbl.classList.toggle('disabled-label', ids.length === 0);
+}
+
+function startQuiz() {
+  const subject   = document.getElementById('quiz-subject-select').value;
+  const mode      = document.querySelector('input[name="quiz-mode"]:checked')?.value || 'normal';
+  const countMode = document.querySelector('input[name="quiz-count"]:checked')?.value || '10';
+  let pool = subject === 'all' ? [...quizData] : quizData.filter(q => q.subject === subject);
+  if (mode === 'checked') {
+    const ids = getCheckedIds();
+    pool = pool.filter(q => ids.includes(q.id));
+    if (!pool.length) { alert('選択した科目にチェック済みの問題がありません。'); return; }
+  }
+  pool = pool.sort(() => Math.random() - .5);
+  if (countMode === '10') pool = pool.slice(0, Math.min(10, pool.length));
+  if (countMode === '20') pool = pool.slice(0, Math.min(20, pool.length));
+  quizState = { questions: pool, currentIndex: 0, score: 0, mode, countMode, answered: false };
+  showQuizScreen('quiz-question');
+  renderQuestion();
+}
+
+function showQuizScreen(id) {
+  ['quiz-start', 'quiz-question', 'quiz-result'].forEach(s => {
+    const el = document.getElementById(s);
+    if (el) el.style.display = s === id ? 'block' : 'none';
+  });
+  document.getElementById('quiz-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function renderQuestion() {
+  const q     = quizState.questions[quizState.currentIndex];
+  const total = quizState.questions.length;
+  document.getElementById('quiz-q-subject').textContent = q.subject;
+  document.getElementById('quiz-q-num').textContent = `${quizState.currentIndex + 1} / ${total}`;
+  const scoreEl = document.getElementById('quiz-q-score');
+  scoreEl.style.display = quizState.countMode === 'all' ? 'none' : 'inline';
+  scoreEl.textContent = `${quizState.score}問正解`;
+  document.getElementById('quiz-q-text').textContent = q.question;
+  document.getElementById('quiz-choices').innerHTML = q.choices.map((c, i) =>
+    `<button class="quiz-choice-btn" onclick="answerQuiz(${i})">${c}</button>`).join('');
+  document.getElementById('quiz-explanation').style.display = 'none';
+  document.getElementById('quiz-next-btn').style.display = 'none';
+  updateCheckBtn(getCheckedIds().includes(q.id));
+  quizState.answered = false;
+}
+
+function answerQuiz(chosenIdx) {
+  if (quizState.answered) return;
+  quizState.answered = true;
+  const q = quizState.questions[quizState.currentIndex];
+  const correct = q.answer === chosenIdx;
+  if (correct) quizState.score++;
+  saveQuizResult(q.id, correct);
+  updateSummaryCards();
+  document.querySelectorAll('.quiz-choice-btn').forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === q.answer) btn.classList.add('correct');
+    else if (i === chosenIdx) btn.classList.add('wrong');
+  });
+  const expEl = document.getElementById('quiz-explanation');
+  expEl.style.display = 'block';
+  const badge = document.getElementById('quiz-result-badge');
+  badge.textContent = correct ? '✅ 正解！' : '❌ 不正解';
+  badge.className = 'quiz-result-badge ' + (correct ? 'correct' : 'wrong');
+  document.getElementById('quiz-exp-text').textContent = q.explanation;
+  document.getElementById('quiz-source').textContent = `📖 出典：教科書 p.${q.page}`;
+  const isLast  = quizState.currentIndex + 1 >= quizState.questions.length;
+  const nextBtn = document.getElementById('quiz-next-btn');
+  nextBtn.textContent = isLast
+    ? (quizState.countMode === 'all' ? '終了する' : '結果を見る')
+    : '次の問題 →';
+  nextBtn.style.display = 'inline-flex';
+  expEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function nextQuiz() {
+  const nextIdx = quizState.currentIndex + 1;
+  if (nextIdx >= quizState.questions.length) {
+    quizState.countMode === 'all' ? endQuiz() : showResult();
+    return;
+  }
+  quizState.currentIndex = nextIdx;
+  renderQuestion();
+  document.getElementById('quiz-question').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function showResult() {
+  const total = quizState.questions.length;
+  const score = quizState.score;
+  const pct   = Math.round(score / total * 100);
+  document.getElementById('quiz-score-num').textContent = `${score} / ${total}問 正解！`;
+  document.getElementById('quiz-score-pct').textContent = `正答率 ${pct}%`;
+  showQuizScreen('quiz-result');
+  setTimeout(() => { document.getElementById('quiz-result-bar').style.width = pct + '%'; }, 100);
+}
+
+function toggleQuizCheck() {
+  const q   = quizState.questions[quizState.currentIndex];
+  const ids = getCheckedIds();
+  const idx = ids.indexOf(q.id);
+  if (idx === -1) ids.push(q.id); else ids.splice(idx, 1);
+  saveCheckedIds(ids);
+  updateCheckBtn(ids.includes(q.id));
+  updateSummaryCards();
+}
+
+function updateCheckBtn(isChecked) {
+  const btn = document.getElementById('quiz-check-btn');
+  if (!btn) return;
+  btn.textContent = isChecked ? '⭐ チェック済み（解除）' : '⭐ 要チェック';
+  btn.classList.toggle('checked', isChecked);
+}
+
+function endQuiz()   { showQuizScreen('quiz-start'); updateCheckedCount(); updateSummaryCards(); updateSubjectProgress(); }
+function retryQuiz() { showQuizScreen('quiz-start'); updateCheckedCount(); updateSummaryCards(); updateSubjectProgress(); }
+
+// ─────────────────────────────────────────────
+// ACCORDION
+// ─────────────────────────────────────────────
+function toggleAccordion(sectionId) {
+  const section = document.getElementById(sectionId);
+  const body    = section.querySelector('.accordion-body');
+  const icon    = section.querySelector('.accordion-icon');
+  body.classList.toggle('open');
+  if (icon) icon.textContent = body.classList.contains('open') ? '▲' : '▼';
+}
+
+// ボトムナビ：タップで対象セクションが閉じていたら開く
+document.querySelectorAll('#bottom-nav a').forEach(link => {
+  link.addEventListener('click', function () {
+    const targetId = this.getAttribute('href').replace('#', '');
+    const target   = document.getElementById(targetId);
+    if (!target) return;
+    const body = target.querySelector('.accordion-body');
+    if (body && !body.classList.contains('open')) {
+      toggleAccordion(targetId);
+    }
+    // Studyページに切り替え
+    if (['section-materials','section-lectures','section-practice','section-sites','quiz-section'].includes(targetId)) {
+      showPage('study');
+    }
+  });
+});
+</script>
+</body>
+</html>
