@@ -1457,6 +1457,10 @@ function showPage(name) {
   });
   document.getElementById('page-' + name).classList.add('active');
   window.scrollTo({ top: 0, behavior: 'smooth' });
+  gtag('event', 'page_view', {
+    page_title: name,
+    page_path: '/' + name
+  });
 }
 
 // ─────────────────────────────────────────────
