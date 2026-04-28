@@ -8,7 +8,10 @@
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
 
-    gtag('config', 'G-MVOW95311F');
+    gtag('config', 'G-MVOW95311F', {
+      'cookie_flags': 'SameSite=None;Secure',
+      'send_page_view': true
+    });
   </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -1429,6 +1432,7 @@ function checkPw() {
     sessionStorage.setItem(SESSION_KEY, '1');
     document.getElementById('pw-overlay').style.display = 'none';
     document.getElementById('app').style.display = 'block';
+    gtag('event', 'login', { method: 'password' });
     initStudy();
   } else {
     const inp = document.getElementById('pw-input');
