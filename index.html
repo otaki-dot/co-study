@@ -1472,6 +1472,19 @@ function showPage(name) {
 }
 
 // ─────────────────────────────────────────────
+// GA4 TRACKING HELPER
+// ─────────────────────────────────────────────
+function trackEvent(name, params) {
+  try {
+    if (typeof gtag === 'function') {
+      gtag('event', name, params);
+    }
+  } catch (e) {
+    // 計測処理の失敗がクイズ動作に影響しないようにする
+  }
+}
+
+// ─────────────────────────────────────────────
 // CARD DATA
 // ─────────────────────────────────────────────
 const CARDS = [
@@ -1710,6 +1723,7 @@ document.addEventListener('DOMContentLoaded', () => {
 const QUIZ_LS_KEY = 'quiz_checked_ids';
 let quizData  = [];
 let quizState = {};
+let questionStartTime = 0;
 
 function getCheckedIds() {
   try { return JSON.parse(localStorage.getItem(QUIZ_LS_KEY) || '[]'); } catch { return []; }
@@ -1808,6 +1822,13 @@ function startQuiz() {
   if (countMode === '10') pool = pool.slice(0, Math.min(10, pool.length));
   if (countMode === '20') pool = pool.slice(0, Math.min(20, pool.length));
   quizState = { questions: pool, currentIndex: 0, score: 0, mode, countMode, answered: false };
+  trackEvent('quiz_start', {
+    subject: subject,
+    mode: mode
+  });
+  if (subject !== 'all') {
+    trackEvent('filter_apply', { subject: subject });
+  }
   showQuizScreen('quiz-question');
   renderQuestion();
 }
@@ -1821,6 +1842,7 @@ function showQuizScreen(id) {
 }
 
 function renderQuestion() {
+  questionStartTime = Date.now();
   const q     = quizState.questions[quizState.currentIndex];
   const total = quizState.questions.length;
   document.getElementById('quiz-q-subject').textContent = q.subject;
@@ -1844,6 +1866,13 @@ function answerQuiz(chosenIdx) {
   const correct = q.answer === chosenIdx;
   if (correct) quizState.score++;
   saveQuizResult(q.id, correct);
+  trackEvent('quiz_answer', {
+    subject: q.subject,
+    question_id: q.id,
+    is_correct: correct,
+    correct_count: correct ? 1 : 0,
+    answer_time_ms: Date.now() - questionStartTime
+  });
   updateSummaryCards();
   document.querySelectorAll('.quiz-choice-btn').forEach((btn, i) => {
     btn.disabled = true;
@@ -1883,6 +1912,11 @@ function showResult() {
   const pct   = Math.round(score / total * 100);
   document.getElementById('quiz-score-num').textContent = `${score} / ${total}問 正解！`;
   document.getElementById('quiz-score-pct').textContent = `正答率 ${pct}%`;
+  trackEvent('quiz_complete', {
+    subject: document.getElementById('quiz-subject-select')?.value || 'all',
+    score: score,
+    total_questions: total
+  });
   showQuizScreen('quiz-result');
   setTimeout(() => { document.getElementById('quiz-result-bar').style.width = pct + '%'; }, 100);
 }
@@ -1891,7 +1925,16 @@ function toggleQuizCheck() {
   const q   = quizState.questions[quizState.currentIndex];
   const ids = getCheckedIds();
   const idx = ids.indexOf(q.id);
-  if (idx === -1) ids.push(q.id); else ids.splice(idx, 1);
+  const isAdding = idx === -1;
+  if (isAdding) {
+    ids.push(q.id);
+    trackEvent('bookmark_add', {
+      subject: q.subject,
+      question_id: q.id
+    });
+  } else {
+    ids.splice(idx, 1);
+  }
   saveCheckedIds(ids);
   updateCheckBtn(ids.includes(q.id));
   updateSummaryCards();
