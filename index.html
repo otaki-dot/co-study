@@ -972,6 +972,85 @@
       .accordion-icon { display: none; }
       #bottom-nav { display: none; }
     }
+
+    /* ─────────────────────────────────────────
+       ENCOURAGE TOAST
+    ───────────────────────────────────────── */
+    #encourage-toast {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: rgba(37, 99, 235, 0.93);
+      backdrop-filter: blur(4px);
+      color: #fff;
+      font-size: .875rem;
+      font-weight: 500;
+      text-align: center;
+      padding: 11px 24px;
+      z-index: 5000;
+      transform: translateY(100%);
+      transition: transform .35s cubic-bezier(.25,.8,.25,1);
+      letter-spacing: .02em;
+      pointer-events: none;
+    }
+    #encourage-toast.show { transform: translateY(0); }
+    @media (max-width: 768px) {
+      #encourage-toast { bottom: 70px; }
+    }
+
+    /* ─────────────────────────────────────────
+       STREAK BADGE
+    ───────────────────────────────────────── */
+    .streak-badge {
+      font-size: .72rem;
+      font-weight: 600;
+      color: var(--primary);
+      background: var(--primary-light);
+      border-radius: 20px;
+      padding: 3px 10px;
+      margin-left: 8px;
+      white-space: nowrap;
+      vertical-align: middle;
+    }
+
+    /* ─────────────────────────────────────────
+       ENCOURAGE SETTINGS
+    ───────────────────────────────────────── */
+    .encourage-settings {
+      margin-top: 28px;
+      padding: 12px 16px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .encourage-settings-label {
+      font-size: .85rem;
+      color: var(--text-muted);
+    }
+    .toggle-switch { position: relative; width: 42px; height: 24px; flex-shrink: 0; }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; position: absolute; }
+    .toggle-track {
+      position: absolute; inset: 0;
+      background: #CBD5E1;
+      border-radius: 24px;
+      cursor: pointer;
+      transition: background .2s;
+    }
+    .toggle-track::after {
+      content: '';
+      position: absolute;
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      background: #fff;
+      top: 3px; left: 3px;
+      transition: transform .2s;
+      box-shadow: 0 1px 3px rgba(0,0,0,.25);
+    }
+    .toggle-switch input:checked + .toggle-track { background: var(--primary); }
+    .toggle-switch input:checked + .toggle-track::after { transform: translateX(18px); }
   </style>
 </head>
 <body>
@@ -1001,6 +1080,7 @@
   <nav id="nav">
     <div class="nav-brand" onclick="showPage('home')">
       <img src="うえ.png" alt="ロゴ" style="height:40px;object-fit:contain;vertical-align:middle"> 卒業試験・国家試験勉強サイト
+      <span id="streak-badge" class="streak-badge" style="display:none" aria-label="連続学習日数"></span>
     </div>
     <div class="nav-links">
       <button class="nav-link active" data-page="home"    onclick="showPage('home')">Home</button>
@@ -1346,6 +1426,15 @@
         </div><!-- /accordion-body -->
       </section><!-- /section-sites -->
 
+      <!-- 設定 -->
+      <div class="encourage-settings">
+        <span class="encourage-settings-label">💬 励ましメッセージを表示する</span>
+        <label class="toggle-switch" aria-label="励ましメッセージのON/OFF">
+          <input type="checkbox" id="encourage-toggle" checked onchange="setEncourageEnabled(this.checked)">
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+
     </div>
   </div><!-- /study -->
 
@@ -1434,6 +1523,9 @@
       <span>サイト</span>
     </a>
   </nav>
+
+  <!-- 励ましトースト -->
+  <div id="encourage-toast" role="status" aria-live="polite"></div>
 
 </div><!-- /app -->
 
@@ -1723,6 +1815,7 @@ function initStudy() {
   renderLectureCards();
   loadProgress();
   initQuizApp();
+  onStudyOpen();
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -1835,7 +1928,7 @@ function startQuiz() {
   pool = pool.sort(() => Math.random() - .5);
   if (countMode === '10') pool = pool.slice(0, Math.min(10, pool.length));
   if (countMode === '20') pool = pool.slice(0, Math.min(20, pool.length));
-  quizState = { questions: pool, currentIndex: 0, score: 0, mode, countMode, answered: false };
+  quizState = { questions: pool, currentIndex: 0, score: 0, mode, countMode, answered: false, consecutiveCorrect: 0, sessionAnswered: 0, wrongCount: 0 };
   trackEvent('quiz_start', {
     subject: subject,
     mode: mode
@@ -1878,6 +1971,8 @@ function answerQuiz(chosenIdx) {
   quizState.answered = true;
   const q = quizState.questions[quizState.currentIndex];
   const correct = q.answer === chosenIdx;
+  const prevResults = getQuizResults();
+  const wasWrong = prevResults[q.id] === false;
   if (correct) quizState.score++;
   saveQuizResult(q.id, correct);
   trackEvent('quiz_answer', {
@@ -1907,6 +2002,29 @@ function answerQuiz(chosenIdx) {
     : '次の問題 →';
   nextBtn.style.display = 'inline-flex';
   expEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+  // ── 励まし処理 ──
+  quizState.sessionAnswered++;
+  if (correct) {
+    quizState.consecutiveCorrect++;
+    quizState.wrongCount = 0;
+  } else {
+    quizState.consecutiveCorrect = 0;
+    quizState.wrongCount++;
+  }
+  let encourageMsg = null;
+  if (quizState.sessionAnswered % 10 === 0) {
+    encourageMsg = '10問。ここまで来たら20問も同じ！';
+  } else if (correct && wasWrong) {
+    encourageMsg = '一度間違えた問題を取り返した！これが一番伸びる！';
+  } else if (correct && quizState.consecutiveCorrect === 5) {
+    encourageMsg = '5問連続。調子いい！';
+    quizState.consecutiveCorrect = 0;
+  } else if (!correct && quizState.wrongCount % 3 === 0) {
+    const wMsgs = ['間違えた問題こそ、次に出る', '今できないと分かったのは収穫'];
+    encourageMsg = wMsgs[Math.floor(Math.random() * wMsgs.length)];
+  }
+  if (encourageMsg) setTimeout(() => showToast(encourageMsg), 600);
 }
 
 function nextQuiz() {
@@ -1933,6 +2051,11 @@ function showResult() {
   });
   showQuizScreen('quiz-result');
   setTimeout(() => { document.getElementById('quiz-result-bar').style.width = pct + '%'; }, 100);
+  if ((quizState.sessionAnswered || 0) >= 5) {
+    const n = quizState.sessionAnswered;
+    const endMsgs = [`今日は${n}問。積み上がっている！`, `${n}問も解いた！素晴らしい！`];
+    setTimeout(() => showToast(endMsgs[Math.floor(Math.random() * endMsgs.length)], 6000), 600);
+  }
 }
 
 function toggleQuizCheck() {
@@ -1961,7 +2084,14 @@ function updateCheckBtn(isChecked) {
   btn.classList.toggle('checked', isChecked);
 }
 
-function endQuiz()   { showQuizScreen('quiz-start'); updateCheckedCount(); updateSummaryCards(); updateSubjectProgress(); }
+function endQuiz() {
+  if ((quizState.sessionAnswered || 0) >= 5) {
+    const n = quizState.sessionAnswered;
+    const endMsgs = [`今日は${n}問。積み上がっている！`, `${n}問も解いた！素晴らしい！`];
+    setTimeout(() => showToast(endMsgs[Math.floor(Math.random() * endMsgs.length)], 6000), 300);
+  }
+  showQuizScreen('quiz-start'); updateCheckedCount(); updateSummaryCards(); updateSubjectProgress();
+}
 function retryQuiz() { showQuizScreen('quiz-start'); updateCheckedCount(); updateSummaryCards(); updateSubjectProgress(); }
 
 // ─────────────────────────────────────────────
@@ -1973,6 +2103,118 @@ function toggleAccordion(sectionId) {
   const icon    = section.querySelector('.accordion-icon');
   body.classList.toggle('open');
   if (icon) icon.textContent = body.classList.contains('open') ? '▲' : '▼';
+}
+
+// ─────────────────────────────────────────────
+// ENCOURAGE SYSTEM
+// ─────────────────────────────────────────────
+const ENCOURAGE_SETTINGS_KEY = 'encourage_settings';
+const ENCOURAGE_OPEN_KEY     = 'encourage_open_count';
+const STREAK_LS_KEY          = 'study_streak';
+let _toastTimer = null;
+
+function getEncourageEnabled() {
+  try {
+    const s = JSON.parse(localStorage.getItem(ENCOURAGE_SETTINGS_KEY));
+    return s === null ? true : !!s.enabled;
+  } catch { return true; }
+}
+
+function setEncourageEnabled(val) {
+  localStorage.setItem(ENCOURAGE_SETTINGS_KEY, JSON.stringify({ enabled: !!val }));
+}
+
+function showToast(msg, duration) {
+  if (!getEncourageEnabled()) return;
+  duration = duration || 4000;
+  const bar = document.getElementById('encourage-toast');
+  if (!bar) return;
+  // 直前と同じ文言は繰り返さない（表示中の場合）
+  if (bar.dataset.lastMsg === msg && bar.classList.contains('show')) return;
+  bar.dataset.lastMsg = msg;
+  bar.textContent = msg;
+  bar.classList.add('show');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => bar.classList.remove('show'), duration);
+}
+
+// ─── ストリーク ───
+function getStreakData() {
+  try { return JSON.parse(localStorage.getItem(STREAK_LS_KEY)) || { lastDate: null, streak: 0 }; }
+  catch { return { lastDate: null, streak: 0 }; }
+}
+
+function updateStreak() {
+  const today = new Date().toISOString().slice(0, 10); // "YYYY-MM-DD"
+  const data = getStreakData();
+  const last = data.lastDate;
+  let streak = data.streak || 0;
+
+  if (last === today) {
+    return { streak, isNew: false, daysSince: 0 };
+  }
+
+  const daysSince = last
+    ? Math.round((new Date(today) - new Date(last)) / 86400000)
+    : null;
+
+  streak = daysSince === 1 ? streak + 1 : 1;
+  localStorage.setItem(STREAK_LS_KEY, JSON.stringify({ lastDate: today, streak }));
+  return { streak, isNew: true, daysSince };
+}
+
+function updateStreakDisplay(streak) {
+  const el = document.getElementById('streak-badge');
+  if (!el) return;
+  if (streak >= 2) {
+    el.textContent = streak + '日連続';
+    el.style.display = 'inline-block';
+  } else {
+    el.style.display = 'none';
+  }
+}
+
+// ─── 開いたとき ───
+function onStudyOpen() {
+  const { streak, isNew, daysSince } = updateStreak();
+  updateStreakDisplay(streak);
+
+  // 設定トグルの初期状態を反映
+  const toggle = document.getElementById('encourage-toggle');
+  if (toggle) toggle.checked = getEncourageEnabled();
+
+  if (!getEncourageEnabled()) return;
+
+  // 3日以上空いていた場合は必ず表示
+  if (daysSince !== null && daysSince >= 3) {
+    setTimeout(() => showToast('久しぶりでも、開いた時点で偉い！', 5000), 900);
+    return;
+  }
+
+  // 連続学習の節目（初日訪問時のみ）
+  if (isNew && [3, 7, 14, 30].includes(streak)) {
+    const milestoneMsg = {
+      3:  '3日連続！継続は力なり！',
+      7:  '7日連続！1週間続いた。本当にすごい！',
+      14: '2週間連続！もはや習慣になってきた！',
+      30: '30日連続！！信じられない。本物だ！'
+    }[streak];
+    setTimeout(() => showToast(milestoneMsg, 6000), 900);
+    return;
+  }
+
+  // 3回に1回の確率
+  const cnt = parseInt(localStorage.getItem(ENCOURAGE_OPEN_KEY) || '0') + 1;
+  localStorage.setItem(ENCOURAGE_OPEN_KEY, String(cnt));
+  if (cnt % 3 === 0) {
+    const openMsgs = [
+      '今日も来た。それだけで十分',
+      'まずは5分だけでいいから勉強しよう！',
+      '数分でもやるだけめっちゃ偉い！',
+      'ちょっとでもクイズをやってみよう！やる気は後からついてくる',
+    ];
+    setTimeout(() => showToast(openMsgs[Math.floor(Math.random() * openMsgs.length)]), 900);
+  }
 }
 
 // ボトムナビ：タップで対象セクションが閉じていたら開く
